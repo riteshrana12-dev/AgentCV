@@ -1,10 +1,10 @@
-import httpx , asyncio , requests , base64
+import httpx , requests , base64 , logging
+logger = logging.getLogger("uvicorn")
 from typing import List, Dict, Any
 
-async def fetch_github_user_repos( max_repos: int =10)-> List[Dict[str,Any]]:
-
-
-    url = f"https://api.github.com/users/riteshrana12-dev/repos?sort=updated&per_page={max_repos}"
+async def fetch_github_user_repos(username: str, max_repos: int = 10) -> List[Dict[str, Any]]:
+    
+    url = f"https://api.github.com/users/{username}/repos?sort=updated&per_page={max_repos}"
     headers = {"user-Agent": "AI-Resume-Analyzer"}
 
     async with httpx.AsyncClient(timeout=10.0) as client:
@@ -22,7 +22,7 @@ async def fetch_github_user_repos( max_repos: int =10)-> List[Dict[str,Any]]:
         if repo.get("fork"):
             continue
 
-        readme = fetch_repo_readme(repo.get("name"))
+        readme = await fetch_repo_readme(username, repo.get("name"))
 
         repo_list.append({
             "name": repo.get("name"),
@@ -34,12 +34,13 @@ async def fetch_github_user_repos( max_repos: int =10)-> List[Dict[str,Any]]:
             "readme":readme
         })
 
-    print("repo_list: ",repo_list)
-    # return repo_list
+    logger.info(f"generator node: {repo_list}")
+
+    return repo_list
 
 
-def fetch_repo_readme(repo):
-    url = f"https://api.github.com/repos/riteshrana12-dev/{repo}/readme"
+async def fetch_repo_readme(username: str, repo: str):
+    url = f"https://api.github.com/repos/{username}/{repo}/readme"
 
     response = requests.get(url)
     if response.status_code == 200:
@@ -49,12 +50,3 @@ def fetch_repo_readme(repo):
     else:
         return f"Could not fetch README: {response.status_code}"
 
-
-
-
-
-async def main():
-    await fetch_github_user_repos()
-
-if __name__ == "__main__":
-    asyncio.run(main())
