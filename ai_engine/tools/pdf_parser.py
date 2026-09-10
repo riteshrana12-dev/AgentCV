@@ -1,8 +1,9 @@
-from langchain_community.document_loaders import PyPDFLoader
+from langchain_community.document_loaders.blob_loaders import Blob
+from langchain_community.document_loaders.parsers.pdf import PyPDFParser
 
-def parse_pdf(file_path:str):
-    pdf_loader = PyPDFLoader("Get_Started_With_Smallpdf.pdf")
-    pdf_documents = pdf_loader.load(file_path)
-    parse_text = pdf_documents[0].page_content
+def extract_text_from_pdf(file_bytes: bytes) -> str:
+    blob = Blob.from_data(file_bytes, mime_type="application/pdf")
+    parser = PyPDFParser()
+    pages = [doc.page_content or "" for doc in parser.lazy_parse(blob)]
+    return "\n\n".join(pages).strip()
 
-    return parse_text
