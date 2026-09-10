@@ -1,0 +1,56 @@
+# ==========================================
+# Environments & Secrets (CRITICAL)
+# ==========================================
+.env
+.env.local
+.env.*.local
+*.env
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ==========================================
+# Python Bytecode & Cache
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ==========================================
+# Local Test Files & Generated Artifacts
+# ==========================================
+# Exclude test PDFs/DOCXs generated or used locally
+*.pdf
+*.docx
+*.doc
+!sample_resume.pdf  # Un-comment if you want to track a public sample resume
+output/
+temp/
+tmp/
+*.log
+
+# ==========================================
+# IDEs & OS Files
+# ==========================================
+.vscode/
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# LangChain / LangGraph Tracing & Exports
+# ==========================================
+.langchain/
+*.checkpoint
