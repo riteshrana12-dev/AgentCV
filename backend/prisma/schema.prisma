@@ -5,9 +5,52 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id                      String   @id @default(uuid())
+  email                   String   @unique
+  hashedPassword          String
+  gitHubUsername          String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  resumes                 Resume[]
+}
+
+model Resume {
+  id                      String   @id @default(uuid())
+  originalResumePath      String
+  originalResumeUrl       String
+  fileName                String
+  fileSize                Int
+  fileType                String
+  jd                      String
+  tailoredResumeUrlPdf    String
+  tailoreResumeUrlDocx    String
+  atsScore                Int
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  userId                  String
+  user                    User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  suggestion              Suggestion[]
+}
+
+model Suggestion {
+  id                      String   @id @default(uuid())
+  coverLetter             String
+  coldEmail               String
+  linkedinMessage         String
+  tailoredBulletsPoints   String[]
+  projectRecommendation   String
+  projectSuggestionAdvice String
+  matchedSkills           String[]
+  missingSkills           Json
+  resumeId                String @unique
+  resume                  Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
 }
