@@ -37,7 +37,7 @@ model Resume {
   updatedAt               DateTime @updatedAt
 
   userId                  String
-  user                    User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   suggestion              Suggestion[]
 }
 
@@ -51,6 +51,6 @@ model Suggestion {
   projectSuggestionAdvice String
   matchedSkills           String[]
   missingSkills           Json
-  resumeId                String @unique
-  resume                  Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  resumeId                String   @unique
+  resume                  Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
 }
