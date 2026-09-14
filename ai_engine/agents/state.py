@@ -37,3 +37,7 @@ class AgentState(TypedDict):
     linkedin_message: str
     generated_docx_url: Optional[str]
     generated_pdf_url: Optional[str]
+
+     # Node 5 Outputs (reEvaluator)
+    tailored_ats_score: int
+    tailored_score_breakdown: Dict[str, int]
