@@ -49,14 +49,14 @@ Job Description:
 {raw_jd}
 
 Return ONLY a valid JSON object with no commentary or markdown:
-{
+{{
   "tailored_bullets": [
     "Rewritten bullet 1 featuring missing skill...",
     "Rewritten bullet 2 featuring missing skill..."
   ],
   "project_recommendation_type": "<'GITHUB_MATCH' or 'BUILD_SUGGESTION'>",
   "project_advice_message": "<Detailed suggestion message explaining which GitHub project to highlight OR what new project to build as per JD requirements>"
-}
+}}
 """
 
 def rewriter_bullets_node(state: AgentState)-> dict:
