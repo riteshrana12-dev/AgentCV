@@ -83,7 +83,7 @@ Evidence must refer to actual resume content.
 
 Example:
 
-{
+{{
 "requirement": "PostgreSQL database schemas and queries",
 "category": "database",
 "importance": "high",
@@ -92,7 +92,7 @@ Example:
 "Candidate's project uses PostgreSQL",
 "Resume describes PostgreSQL persistence"
 ]
-}
+}}
 
 # ========================
 
@@ -159,19 +159,19 @@ Separate missing skills into:
 
 Example:
 
-{
+{{
 "truly_missing": [
 "Angular",
 "Vue"
 ],
 "partially_supported": [
-{
+{{
 "skill": "Git/GitHub workflows",
 "related_experience": "Candidate has GitHub and collaborative development experience",
 "gap": "Specific workflow or collaboration process is not explicitly described"
-}
+}}
 ]
-}
+}}
 
 # ========================
 
@@ -202,12 +202,12 @@ Do not invent or rename experiences.
 
 Example:
 
-{
+{{
 "source": "Candidate's backend project",
 "relevant_requirement": "PostgreSQL",
 "evidence": "Project uses PostgreSQL for data persistence",
 "relevance_score": 92
-}
+}}
 
 # ========================
 
@@ -259,14 +259,14 @@ Also provide a stronger alternative when appropriate.
 
 Example:
 
-{
+{{
 "verb": "Fixed",
 "suggested_alternatives": [
 "Resolved",
 "Diagnosed",
 "Remediated"
 ]
-}
+}}
 
 # ========================
 
@@ -324,7 +324,7 @@ Return:
 
 Example:
 
-{
+{{
 "top_requirements": [
 "React.js",
 "Node.js",
@@ -338,16 +338,16 @@ Example:
 "Candidate's backend project"
 ],
 "transferable_skills": [
-{
+{{
 "jd_requirement": "Angular/Vue",
 "candidate_skill": "React.js",
 "reason": "Frontend framework experience is transferable"
-}
+}}
 ],
 "skills_or_experiences_to_avoid_highlighting": [
 "Technologies unrelated to the target role"
 ]
-}
+}}
 
 # ========================
 
@@ -378,17 +378,17 @@ Do not include explanations outside the JSON.
 
 Return exactly this structure:
 
-{
+{{
 "experience_score": 0,
 
 "requirement_analysis": [],
 
 "matched_skills": [],
 
-"missing_skills": {
+"missing_skills": {{
 "truly_missing": [],
 "partially_supported": []
-},
+}},
 
 "experience_evidence": [],
 
@@ -396,16 +396,16 @@ Return exactly this structure:
 
 "red_flags": [],
 
-"curation_signals": {
+"curation_signals": {{
 "top_requirements": [],
 "strongest_candidate_evidence": [],
 "best_projects_to_highlight": [],
 "transferable_skills": [],
 "skills_or_experiences_to_avoid_highlighting": []
-},
+}},
 
 "strategic_recommendation": ""
-}
+}}
 """
 
 def evaluate_ats_node(state: AgentState) -> dict:
@@ -452,6 +452,23 @@ def evaluate_ats_node(state: AgentState) -> dict:
     formatting_alerts.extend([rf["issue"] for rf in red_flags if isinstance(rf, dict) and "issue" in rf])
 
 # Pretty-print JSON in logs
+
+    # result_payload= {
+    #         "ats_score": final_score,
+    #         "score_breakdown": {
+    #             "keyword_match_score": keyword_score,
+    #             "experience_match_score": exp_score,
+    #             "formatting_score": fmt_score
+    #         },
+    #         "matched_skills": combined_matched,
+    #         "missing_skills": combined_missing,
+    #         "weak_verbs": llm_result.get("weak_verbs", []),
+    #         "formatting_alerts": formatting_alerts,
+    #         "requirement_analysis": llm_result.get("requirement_analysis", []),
+    #         "experience_evidence": llm_result.get("experience_evidence", []),
+    #         "curation_signals": llm_result.get("curation_signals", {}),
+    #         "strategic_recommendation": llm_result.get("strategic_recommendation", "")
+    #     }
 
     # print("evaluatornode",result_payload )
     # logger.info("Resume evaluation result:\n%s", json.dumps(result_payload, indent=2))
