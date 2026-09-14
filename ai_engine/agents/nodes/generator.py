@@ -11,23 +11,9 @@ from google import genai
 from google.genai import types
 from ai_engine.agents.state import AgentState
 from ai_engine.tools.exporter import ExportResumeData, ResumeSection, export_docx, export_pdf
+from ai_engine.agents.system_prompts.generator_prompt import GENERATOR_PROMPT
 
 
-GENERATOR_PROMPT = """
-You are an elite career strategist. Generate three outreach assets based on candidate data and job details:
-
-Matched Skills: {matched_skills}
-Missing Skills: {missing_skills}
-Job Description: {raw_jd}
-Resume Context: {raw_resume}
-
-Return ONLY a JSON object:
-{{
-  "cover_letter": "Dear Hiring Manager,...",
-  "cold_email": "Subject: ...\\n\\nHi [Hiring Manager],...",
-  "linkedin_message": "Hi [Name], I noticed your team..."
-}}
-"""
 
 
 def generate_docs_node(state: AgentState)-> dict:
