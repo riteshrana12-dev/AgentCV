@@ -12,12 +12,14 @@ router = APIRouter(prefix="/resume", tags=["Resume Tailoring"])
 
 @router.post("/tailor_resume")
 async def tailor_resume(req: TailorResumeRequest):
+    print(req.storage_path)
     logger.info(f"storage path: {req.storage_path}")
     file_bytes = get_file_bytes_from_supabase(req.storage_path)
 
     if not file_bytes:
         return {"error": "Failed to fetch the resume from Supabase."}
 
+    print("file_bytes :", file_bytes)
     # Extract raw text from the resume
     resume_text,_file_type  = _extract_raw_text(file_bytes, req.file_name)
     parse_jd = job_description_text(JdRequest(text=req.jd))
@@ -36,6 +38,11 @@ async def tailor_resume(req: TailorResumeRequest):
         "missing_skills": [],
         "weak_verbs": [],
         "formatting_alerts": [],
+        "requirement_analysis": [],
+        "experience_evidence": [],
+        "curation_signals": {},
+        "strategic_recommendation": "",
+        "tailored_resume": {},
         "tailored_bullets": [],
         "project_recommendation_type": "",
         "project_advice_message": "",
@@ -48,7 +55,7 @@ async def tailor_resume(req: TailorResumeRequest):
 
     job = queue.enqueue(enqueue_resume_tailoring_task, state, req.callback_url)
     return {"status": "queued", "job_id": job.id,
-        "resume_id": req.resume_id,}
+        "resume_id": req.resume_id}
 
 
    
