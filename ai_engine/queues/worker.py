@@ -40,13 +40,6 @@ def enqueue_resume_tailoring_task(state: dict, callback_url: str):
         "generated_pdf_url": result_state["generated_pdf_url"],
     }
 
-    logger.info(
-        "Worker result: resume_id=%s ats_score=%s docx_url=%s pdf_url=%s",
-        payload["resume_id"],
-        payload["ats_score"],
-        payload["generated_docx_path"],
-        payload["generated_pdf_path"],
-    )
     response = requests.post(callback_url, json=payload, timeout=30)
     response.raise_for_status()
 
