@@ -10,258 +10,24 @@ load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "../../.env"))
 from google import genai
 from google.genai import types
 from ai_engine.agents.state import AgentState
-from ai_engine.tools.exporter import export_docx, export_pdf
+from ai_engine.tools.exporter import ExportResumeData, ResumeSection, export_docx, export_pdf
 
 
 GENERATOR_PROMPT = """
-You are an elite career strategist and application-writing specialist.
-
-Your job is NOT to simply summarize the candidate's resume.
-
-Your job is to analyze the relationship between:
-
-1. The Job Description
-2. The candidate's actual resume experience
-3. Skills that match the JD
-4. Skills that are missing from the candidate's profile
-
-Then create three highly curated outreach assets that are specifically tailored to THIS job.
-
-========================
-CANDIDATE-JOB ANALYSIS
-======================
-
-Matched Skills:
-{matched_skills}
-
-Missing Skills:
-{missing_skills}
-
-Strategic Recommendation:
-{strategic_recommendation}
-
-Strongest Evidence:
-{strongest_candidate_evidence}
-
-Best Projects:
-{best_projects_to_highlight}
-
-Job Description:
-{raw_jd}
-
-Resume:
-{raw_resume}
-
-========================
-CORE INSTRUCTIONS
-=================
-
-1. PRIORITIZE THE JOB DESCRIPTION
-
-First identify the most important requirements, responsibilities, technologies, and qualities in the JD.
-
-Do not treat every keyword equally.
-
-Prioritize:
-
-* Core technical requirements
-* Responsibilities
-* Directly relevant experience
-* Important soft skills
-* Technologies explicitly requested by the employer
-
-2. CONNECT JD REQUIREMENTS TO REAL EXPERIENCE
-
-For each important JD requirement, find the strongest supporting evidence from the candidate's resume.
-
-Prefer concrete evidence such as:
-
-* Real projects
-* Internship/work experience
-* Production systems
-* Open-source contributions
-* Specific technologies used
-* Problems solved
-* Measurable outcomes
-
-Do NOT invent experience.
-
-Do NOT claim the candidate has a skill merely because a related skill exists.
-
-3. HANDLE MISSING SKILLS CAREFULLY
-
-Missing skills must NOT be falsely presented as candidate experience.
-
-If a skill is missing but the candidate has adjacent/relevant experience, position it honestly as transferable knowledge.
-
-Example:
-
-Bad:
-"I have extensive experience with Angular."
-
-If Angular is missing.
-
-Good:
-"My experience with React.js and Node.js has given me a strong foundation in modern web development, and I am eager to apply that foundation while learning Angular."
-
-4. CURATE, DON'T DUMP
-
-Do not mention every technology from the resume.
-
-Select only the experiences and technologies that strengthen the candidate's case for THIS specific job.
-
-Generally use the strongest 2–4 relevant experiences rather than listing the entire resume.
-
-5. USE EVIDENCE
-
-Whenever possible, connect a claim to a concrete candidate experience.
-
-Instead of:
-
-"I am experienced in backend development."
-
-Prefer:
-
-"I built backend systems using Node.js and Express.js, including REST APIs and database integrations."
-
-Only make claims supported by the resume.
-
-6. AVOID GENERIC AI-SOUNDING LANGUAGE
-
-Avoid phrases such as:
-
-* "I am thrilled to apply..."
-* "I am confident that I would be a great fit..."
-* "I am passionate about..."
-* "hit the ground running"
-* "leverage my skills"
-* "dynamic environment"
-* "exciting opportunity"
-* "valuable opportunity"
-* "highly motivated individual"
-
-unless the wording is genuinely necessary.
-
-Write naturally, specifically, and professionally.
-
-7. DIFFERENTIATE THE THREE ASSETS
-
-Each asset has a different purpose.
-
----
-
-## COVER LETTER
-
-Purpose:
-Build a strong argument for why the candidate is relevant to the role.
-
-Structure:
-
-* Opening: specific interest in the role
-* 1–2 strongest candidate experiences relevant to the JD
-* Connect technical skills to actual responsibilities
-* Address relevant strengths/transferable skills
-* Close professionally
-
-Target:
-Approximately 250–400 words.
-
-Do not repeat the resume line-by-line.
-
----
-
-## COLD EMAIL
-
-Purpose:
-Get the recruiter's/hiring team's attention quickly.
-
-Structure:
-
-* Strong subject line
-* Short introduction
-* Why this specific role
-* 1–2 strongest relevant qualifications
-* Clear reason the candidate is worth considering
-* Simple call to action
-
-Target:
-Approximately 120–200 words.
-
-Keep it concise.
-
----
-
-## LINKEDIN MESSAGE
-
-Purpose:
-Start a conversation, NOT submit the entire application.
-
-Structure:
-
-* Personalized opening
-* Mention the specific role
-* Mention 1–2 highly relevant candidate strengths
-* Short reason for reaching out
-* Simple conversational CTA
-
-Target:
-Approximately 50–100 words.
-
-Do not include the entire resume.
-
-========================
-PERSONALIZATION RULES
-=====================
-
-The generated content should feel specifically written for the provided JD.
-
-Where appropriate:
-
-* Mirror important terminology from the JD
-* Reference the employer's responsibilities
-* Connect candidate experience directly to those responsibilities
-* Highlight the most relevant projects
-* Mention relevant technologies only when they strengthen the argument
-
-Do not keyword-stuff.
-
-Do not copy sentences from the JD.
-
-Do not fabricate company information, recruiter names, achievements, responsibilities, technologies, or experience.
-
-If the hiring manager's name is unavailable, use "Hiring Manager".
-
-========================
-CONSISTENCY RULES
-=================
-
-All three assets must be based on the same candidate facts.
-
-Do not introduce a skill in the cover letter that is not supported by the resume.
-
-Do not introduce a project in the LinkedIn message that was not mentioned or supported by the resume.
-
-Do not contradict the candidate's experience.
-
-========================
-OUTPUT FORMAT
-=============
-
-Return ONLY valid JSON.
-
-Do not include markdown.
-Do not include ```json.
-Do not include explanations before or after the JSON.
-
-Return exactly:
-
-{
-"cover_letter": "...",
-"cold_email": "...",
-"linkedin_message": "..."
-}
+You are an elite career strategist. Generate three outreach assets based on candidate data and job details:
+
+Matched Skills: {matched_skills}
+Missing Skills: {missing_skills}
+Job Description: {raw_jd}
+Resume Context: {raw_resume}
+
+Return ONLY a JSON object:
+{{
+  "cover_letter": "Dear Hiring Manager,...",
+  "cold_email": "Subject: ...\\n\\nHi [Hiring Manager],...",
+  "linkedin_message": "Hi [Name], I noticed your team..."
+}}
 """
-
 
 
 def generate_docs_node(state: AgentState)-> dict:
@@ -271,23 +37,11 @@ def generate_docs_node(state: AgentState)-> dict:
 
 
     prompt = GENERATOR_PROMPT.format(
-        matched_skills=json.dumps(state.get("matched_skills", []), indent=2),
-        missing_skills=json.dumps(state.get("missing_skills", {}), indent=2),
-        requirement_analysis=json.dumps(state.get("requirement_analysis", []), indent=2),
-        strategic_recommendation=state.get("strategic_recommendation", ""),
-        strongest_candidate_evidence=json.dumps(
-            state.get("curation_signals", {}).get("strongest_candidate_evidence", []),
-            indent=2
-        ),
-        best_projects_to_highlight=json.dumps(
-            state.get("curation_signals", {}).get("best_projects_to_highlight", []),
-            indent=2
-        ),
+        matched_skills = json.dumps(state.get("matched_skills",[])),
+        missing_skills = json.dumps(state.get("missing_skills",[])),
         raw_jd=state["raw_jd"],
         raw_resume=state["raw_resume"]
-)
-
-
+    )
 
     response = client.models.generate_content(
         model="gemini-3.5-flash-lite",
@@ -299,23 +53,41 @@ def generate_docs_node(state: AgentState)-> dict:
     )
 
     result = json.loads(response.text)
-    tailored_bullets = state.get("tailored_bullets",[])
-    candidate_name = state.get("candidate_name","Candidate")
+    tailored_resume = state.get("tailored_resume", {})
+    if not tailored_resume or not tailored_resume.get("sections"):
+        raise ValueError("tailor_resume node returned no structured resume sections")
+
+    sections_by_title: dict[str, ResumeSection] = {}
+    for section in tailored_resume["sections"]:
+        title = str(section.get("title", "")).strip()
+        lines = [str(line).strip() for line in section.get("lines", []) if str(line).strip()]
+        if not title or not lines:
+            continue
+        if title not in sections_by_title:
+            sections_by_title[title] = ResumeSection(title=title, lines=[])
+        sections_by_title[title].lines.extend(lines)
+
+    if not sections_by_title:
+        raise ValueError("tailor_resume node returned only empty sections")
+
+    resume_data = ExportResumeData(
+        name=tailored_resume.get("name") or state.get("candidate_name") or "Candidate",
+        contact=tailored_resume.get("contact", ""),
+        sections=list(sections_by_title.values()),
+    )
+
+    logger.info(
+        "Exporting tailored resume: sections=%s lines=%d",
+        list(sections_by_title),
+        sum(len(section.lines) for section in resume_data.sections),
+    )
     
     
     # generated output files
 
-    docx_bytes = export_docx(
-        candidate_name=candidate_name,
-        bullets=tailored_bullets,
-        raw_resume=state["raw_resume"],
-    )
+    docx_bytes = export_docx(data=resume_data)
 
-    pdf_bytes = export_pdf(
-        candidate_name=candidate_name,
-        bullets=tailored_bullets,
-        raw_resume=state["raw_resume"],
-    )
+    pdf_bytes = export_pdf(data=resume_data)
 
 
 
