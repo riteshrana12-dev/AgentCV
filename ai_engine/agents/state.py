@@ -23,12 +23,15 @@ class AgentState(TypedDict):
     curation_signals: Dict[str, Any]            
     strategic_recommendation: str                
     
-    # Node 2 Outputs (Rewriter + GitHub Analysis)
+    # Node 2 Outputs (complete JD-aligned resume)
+    tailored_resume: Dict[str, Any]
+
+    # Node 3 Outputs (Rewriter + GitHub Analysis)
     tailored_bullets: List[str]
     project_recommendation_type: str  
     project_advice_message: str      
     
-    # Node 3 Outputs (Generator)
+    # Node 4 Outputs (Generator)
     cover_letter: str
     cold_email: str
     linkedin_message: str
