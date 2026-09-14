@@ -21,7 +21,9 @@ def enqueue_resume_tailoring_task(state: dict, callback_url: str):
     payload = {
         "resume_id": result_state["resume_id"],
         "ats_score": result_state["ats_score"],
+        "tailored_ats_score": result_state["tailored_ats_score"],
         "score_breakdown": result_state["score_breakdown"],
+        "tailored_score_breakdown": result_state["tailored_score_breakdown"],
         "matched_skills": result_state["matched_skills"],
         "missing_skills": result_state["missing_skills"],
         "weak_verbs": result_state["weak_verbs"],
