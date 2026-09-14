@@ -34,6 +34,7 @@ frozenlist==1.8.0
 google-auth==2.57.0
 google-genai==2.20.0
 greenlet==3.5.5
+groq==1.7.0
 h11==0.16.0
 h2==4.4.1
 hpack==4.2.0
