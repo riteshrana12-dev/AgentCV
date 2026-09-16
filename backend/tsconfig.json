@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "nodeNext",
+    "moduleResolution": "nodeNext",
     "lib": ["ES2022"],
     "outDir": "./dist",
     "rootDir": "./src",
@@ -19,7 +19,7 @@
     "typeRoots": ["./src/types", "./node_modules/@types"]
     // "ignoreDeprecations": "6.0"
   },
-  "include": ["src/**/*", "src/types", "prisma"],
+  "include": ["src/**/*"],
 
   "exclude": ["node_modules", "dist"]
 }
