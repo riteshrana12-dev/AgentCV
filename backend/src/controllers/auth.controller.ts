@@ -137,3 +137,21 @@ export const signin = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const signout = async (req: Request, res: Response) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      path: "/", // must match the path used when setting the cookie
+    });
+
+    return res.status(200).json({ message: "Logged out successfully" });
+  } catch (err: any) {
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
