@@ -31,6 +31,51 @@ const tailorResumeSchema = z.object({
   ),
 
   formatting_alerts: z.array(z.string()),
+  requirement_analysis: z.array(
+    z.object({
+      requirement: z.string(),
+
+      category: z.string(),
+
+      importance: z.string(),
+
+      candidate_match: z.string(),
+
+      evidence_from_resume: z.array(z.string()),
+    }),
+  ),
+  experience_evidence: z.array(
+    z.object({
+      source: z.string(),
+
+      relevant_requirement: z.string(),
+
+      evidence: z.string(),
+
+      relevance_score: z.number(),
+    }),
+  ),
+
+  curation_signals: z.object({
+    top_requirements: z.array(z.string()),
+
+    strongest_candidate_evidence: z.array(z.string()),
+
+    best_projects_to_highlight: z.array(z.string()),
+
+    transferable_skills: z.array(
+      z.object({
+        jd_requirement: z.string(),
+
+        candidate_skill: z.string(),
+
+        reason: z.string(),
+      }),
+    ),
+
+    skills_or_experiences_to_avoid_highlighting: z.array(z.string()),
+  }),
+  strategic_recommendation: z.string(),
   tailored_bullets: z.array(z.string()),
   project_recommendation_type: z.string(),
   project_advice_message: z.string(),
@@ -43,6 +88,7 @@ const tailorResumeSchema = z.object({
 
 const tailorResumeResult = async (req: Request, res: Response) => {
   try {
+    console.log("result from tailored resume controller side:  ", req);
     const parseResult = tailorResumeSchema.safeParse(req.body);
 
     if (!parseResult.success) {
@@ -61,6 +107,10 @@ const tailorResumeResult = async (req: Request, res: Response) => {
       missing_skills,
       weak_verbs,
       formatting_alerts,
+      requirement_analysis,
+      experience_evidence,
+      curation_signals,
+      strategic_recommendation,
       tailored_bullets,
       project_recommendation_type,
       project_advice_message,
@@ -112,12 +162,18 @@ const tailorResumeResult = async (req: Request, res: Response) => {
       success: true,
       data: {
         ats_score,
+        tailored_ats_score,
+        tailored_score_breakdown,
         score_breakdown,
         matched_skills,
         missing_skills,
         weak_verbs,
         formatting_alerts,
         tailored_bullets,
+        requirement_analysis,
+        experience_evidence,
+        curation_signals,
+        strategic_recommendation,
         project_recommendation_type,
         project_advice_message,
         cover_letter,
