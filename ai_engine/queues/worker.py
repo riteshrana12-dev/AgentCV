@@ -13,7 +13,7 @@ from ai_engine.agents.graph import compiled_workflow
 logger = logging.getLogger("uvicorn")
 
 redis_conn = Redis(host="localhost", port=6379, decode_responses=True)
-queue = Queue("resume_tailoring", connection=redis_conn)
+queue = Queue("resume_tailoring", connection=redis_conn, default_timeout=600)
 
 def enqueue_resume_tailoring_task(state: dict, callback_url: str):
     result_state = asyncio.run(compiled_workflow.ainvoke(state))
