@@ -77,3 +77,63 @@ export const signup = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const signin = async (req: Request, res: Response) => {
+  try {
+    const pasredData = authSchema.safeParse(req.body);
+
+    if (!pasredData.success) {
+      return res.status(400).json({ error: pasredData.error.issues });
+    }
+
+    const { email, password } = pasredData.data;
+
+    const checkUserExist = await client.user.findUnique({
+      where: { email },
+    });
+
+    if (!checkUserExist) {
+      return res.status(400).json({
+        success: false,
+        message: "No user found with this email",
+      });
+    }
+
+    const verifyPassword = await bcrypt.compare(
+      password,
+      checkUserExist.hashedPassword,
+    );
+
+    if (!verifyPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Incorrect password",
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        userid: checkUserExist.id,
+        email: checkUserExist.email,
+      },
+      process.env.JWT_SECRET as string,
+    );
+
+    res.cookie("token", token, {
+      httpOnly: true, // prevents JS access
+      secure: false, // only over HTTPS
+      sameSite: "lax",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Sign in successful",
+      token: token,
+    });
+  } catch (err: any) {
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
