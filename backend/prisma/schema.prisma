@@ -33,6 +33,7 @@ model Resume {
   tailoreResumeUrlDocx    String?
   atsScore                Int
   tailoredAtsScore        Int?
+  status                  String
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
