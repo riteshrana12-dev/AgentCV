@@ -39,13 +39,13 @@ def calculate_deterministic_metrics(raw_resume: str, raw_jd: str) -> dict:
     fuzzy_score = fuzz.token_set_ratio(raw_resume, raw_jd)
 
 
-    logger.info(f"""
-                "exact_keyword_score": {round(keyword_match_ratio * 100)},
-                "fuzzy_similarity": {fuzzy_score},
-                "matched_keywords": {matched_keywords[:15]},
-                "missing_keywords": {missing_keywords[:15]},
-                "missing_sections": {missing_sections}
-              """)
+    # logger.info(f"""
+    #             "exact_keyword_score": {round(keyword_match_ratio * 100)},
+    #             "fuzzy_similarity": {fuzzy_score},
+    #             "matched_keywords": {matched_keywords[:15]},
+    #             "missing_keywords": {missing_keywords[:15]},
+    #             "missing_sections": {missing_sections}
+    #           """)
 
     return {
         "exact_keyword_score": round(keyword_match_ratio * 100),

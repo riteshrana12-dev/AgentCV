@@ -34,7 +34,7 @@ async def fetch_github_user_repos(username: str, max_repos: int = 10) -> List[Di
             "readme":readme
         })
 
-    logger.info(f"generator node: {repo_list}")
+    # logger.info(f"generator node: {repo_list}")
 
     return repo_list
 
