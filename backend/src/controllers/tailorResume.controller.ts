@@ -88,7 +88,6 @@ const tailorResumeSchema = z.object({
 
 const tailorResumeResult = async (req: Request, res: Response) => {
   try {
-    console.log("result from tailored resume controller side:  ", req);
     const parseResult = tailorResumeSchema.safeParse(req.body);
 
     if (!parseResult.success) {
@@ -96,7 +95,6 @@ const tailorResumeResult = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Invalid payload" });
     }
 
-    console.log("parsedResult  :", parseResult.data);
     const {
       resume_id,
       ats_score,
@@ -124,14 +122,13 @@ const tailorResumeResult = async (req: Request, res: Response) => {
     await client.resume.update({
       where: { id: resume_id },
       data: {
+        status: "finished",
         atsScore: ats_score,
         tailoredAtsScore: tailored_ats_score,
         tailoredResumeUrlPdf: generated_pdf_url,
         tailoreResumeUrlDocx: generated_docx_url,
       },
     });
-
-    console.info("Resume updated with tailoring result:", resume_id);
 
     await client.suggestion.upsert({
       where: { resumeId: resume_id },
@@ -159,8 +156,8 @@ const tailorResumeResult = async (req: Request, res: Response) => {
     });
 
     return res.status(200).json({
-      success: true,
       data: {
+        success: true,
         ats_score,
         tailored_ats_score,
         tailored_score_breakdown,
