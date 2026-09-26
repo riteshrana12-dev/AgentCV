@@ -62,11 +62,11 @@ def generate_docs_node(state: AgentState)-> dict:
         sections=list(sections_by_title.values()),
     )
 
-    logger.info(
-        "Exporting tailored resume: sections=%s lines=%d",
-        list(sections_by_title),
-        sum(len(section.lines) for section in resume_data.sections),
-    )
+    # logger.info(
+    #     "Exporting tailored resume: sections=%s lines=%d",
+    #     list(sections_by_title),
+    #     sum(len(section.lines) for section in resume_data.sections),
+    # )
     
     
     # generated output files
@@ -88,7 +88,7 @@ def generate_docs_node(state: AgentState)-> dict:
             docx_bytes,
             {"content-type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
         )
-        logger.info("Uploaded tailored DOCX: path=%s bytes=%d", docx_storage_path, len(docx_bytes))
+        # logger.info("Uploaded tailored DOCX: path=%s bytes=%d", docx_storage_path, len(docx_bytes))
 
         supabase.storage.from_("resumes").upload(
             pdf_storage_path,

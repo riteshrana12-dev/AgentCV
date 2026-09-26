@@ -42,7 +42,8 @@ def enqueue_resume_tailoring_task(state: dict, callback_url: str):
         "generated_pdf_url": result_state["generated_pdf_url"],
     }
 
-    response = requests.post(callback_url, json=payload, timeout=30)
+    headers = {"x-worker-secret": os.getenv("WORKER_SECRET")}
+    response = requests.post(callback_url, json=payload, headers=headers, timeout=30)
     response.raise_for_status()
 
 

@@ -127,7 +127,7 @@ def re_evaluate_tailored_ats_node(state: AgentState) -> dict:
     
     # 5. Calculate Composite Score for Tailored Resume
     tailored_final_score = int((keyword_score * 0.4) + (improved_exp_score * 0.4) + (fmt_score * 0.2))
-
+    print("final state  :  ", state)
     return {
         "tailored_ats_score": tailored_final_score,
         "tailored_score_breakdown": {
