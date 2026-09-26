@@ -57,6 +57,7 @@ export const uploadResume = async (req: Request, res: Response) => {
         tailoreResumeUrlDocx: "",
         atsScore: 0,
         tailoredAtsScore: 0,
+        status: "pending",
       },
     });
 
@@ -69,12 +70,10 @@ export const uploadResume = async (req: Request, res: Response) => {
       callback_url: `${process.env.NODEJS_HOST}/api/v1/resume/tailor_resume_callback`,
     });
 
-    console.log("response in nodejs side   :", response);
-
     return res.status(202).json({
-      success: true,
       message: "Resume accepted and tailoring has been queued.",
       data: {
+        success: true,
         resumeId: resume.id,
         originalResumeUrl: uploadedResumePath,
       },
