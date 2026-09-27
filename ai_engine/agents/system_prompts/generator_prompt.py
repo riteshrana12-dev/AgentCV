@@ -10,7 +10,7 @@ This below output the cover_letter , cold_email and linkedin_message this three 
 
 Return ONLY a JSON object:
 {{
-  "cover_letter": "To, Hiring Manager,...",
+  "cover_letter": "Dear Hiring Manager,...",
   "cold_email": "Subject: ...\\n\\nHi [Hiring Manager],...",
   "linkedin_message": "Hi [Name], I noticed your team..."
 }}
