@@ -11,6 +11,32 @@ datasource db {
   provider = "postgresql"
 }
 
+
+enum SessionStatus {
+  created
+  in_progress
+  completed
+  abandoned
+}
+
+enum TurnRole {
+  agent 
+  user
+}
+
+enum InterviewType {
+  technical
+  behavioral
+  mixed
+}
+
+enum Difficulty {
+  junior
+  mid 
+  senior
+}
+
+
 model User {
   id                      String   @id @default(uuid())
   email                   String   @unique
@@ -19,6 +45,7 @@ model User {
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
   resumes                 Resume[]
+  interviewSession        InterviewSession[]
 }
 
 model Resume {
@@ -40,6 +67,9 @@ model Resume {
   userId                  String
   user                    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   suggestion              Suggestion[]
+  interviewSession        InterviewSession[]
+
+  @@index([userId])
 }
 
 model Suggestion {
@@ -55,3 +85,47 @@ model Suggestion {
   resumeId                String   @unique
   resume                  Resume   @relation(fields: [resumeId], references: [id], onDelete: Cascade)
 }
+
+
+
+model InterviewSession {
+  id                      String   @id @default(uuid())
+  companyName             String?
+  position                String
+  difficulty              Difficulty
+  jd                      String
+  resumeText              String?
+  interviewType           InterviewType  
+  focusAreas              String?
+  status                  SessionStatus @default(created)
+  duration                Int
+
+  recordingUrl            String?
+  startedAt               DateTime @default(now())
+  endedAt                 DateTime @default(now())
+  userId                  String
+  user                    User     @relation(fields: [userId],references: [id], onDelete: Cascade)
+  resumeId                String?
+  resume                  Resume?  @relation(fields: [resumeId],references: [id], onDelete: Cascade)
+
+  turns                   InterviewTurn[]
+
+  @@index([userId])
+}
+
+model InterviewTurn {
+  id                      BigInt   @id @default(autoincrement())
+  sessionId               String  
+  idx                     Int
+  role                    TurnRole
+  text                    String
+  wasInterrupted          Boolean  @default(false) 
+  tsMs                    BigInt   
+  createdAt               DateTime @default(now()) 
+  session                 InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+}
+
+
+// 4024519889
