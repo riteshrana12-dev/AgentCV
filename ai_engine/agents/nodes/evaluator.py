@@ -5,6 +5,8 @@ import os
 # logger = logging.getLogger("uvicorn")
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "../../.env"))
 from google import genai
+# from langchain_google_genai import ChatGoogleGenAI
+# from langchain_core.prompts import PromptTemplate
 from google.genai import types
 from ai_engine.agents.state import AgentState
 from ai_engine.tools.deterministic_matcher import calculate_deterministic_metrics
@@ -13,7 +15,7 @@ from ai_engine.agents.system_prompts.evaluator_prompt import EVALUATOR_PROMPT
 
 def evaluate_ats_node(state: AgentState) -> dict:
     """NODE 1: Evaluates resume via Deterministic Engine + Gemini 2.5 Flash."""
-    
+     
     # 1. Run Deterministic Engine (spaCy + rapidfuzz)
     deterministic = calculate_deterministic_metrics(state["raw_resume"], state["raw_jd"])
     
