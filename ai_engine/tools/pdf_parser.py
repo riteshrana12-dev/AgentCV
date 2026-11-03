@@ -13,3 +13,22 @@ def _normalize_pdf_text(text: str) -> str:
     return text.strip()
 
 
+def _extract_with_langchain(file_bytes: bytes) -> str:
+    blob = Blob.from_data(file_bytes, mime_type="application/pdf")
+    parser = PyPDFParser()
+    pages = [doc.page_content or "" for doc in parser.lazy_parse(blob)]
+    return "\n\n".join(pages)
+
+
+def _extract_with_pypdf(file_bytes: bytes) -> str:
+    reader = PdfReader(BytesIO(file_bytes))
+    pages: list[str] = []
+    for page in reader.pages:
+        page_text = page.extract_text() or ""
+        if page_text:
+            pages.append(page_text)
+    return "\n\n".join(pages)
+
+
+
+
