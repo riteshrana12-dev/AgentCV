@@ -30,5 +30,17 @@ def _extract_with_pypdf(file_bytes: bytes) -> str:
     return "\n\n".join(pages)
 
 
+def extract_text_from_pdf(file_bytes: bytes) -> str:
+    text = _extract_with_langchain(file_bytes)
+    if text and text.strip():
+        return _normalize_pdf_text(text)
 
+    text = _extract_with_pypdf(file_bytes)
+    if text and text.strip():
+        return _normalize_pdf_text(text)
+
+    raise ValueError(
+        "Unable to extract readable text from the uploaded PDF. "
+        "It may be scanned/image-based, password-protected, or corrupted."
+    )
 
