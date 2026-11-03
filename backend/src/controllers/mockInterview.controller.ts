@@ -25,7 +25,10 @@ export const mockInterview = async (req: Request, res: Response) => {
 
   try {
     console.log("Body:  ", req.body);
-    const parsedData = mockInterviewSchema.safeParse(req.body);
+    const parsedData = mockInterviewSchema.safeParse({
+      ...req.body,
+      duration: Number(req.body.duration),
+    });
     if (!parsedData.success) {
       return res.status(400).json({ error: parsedData.error.issues });
     }
