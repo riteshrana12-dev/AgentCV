@@ -7,7 +7,7 @@ export default function ResumeForm() {
   const [jd, setJd] = useState("");
   const [githubId, setGithubId] = useState("");
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
     const formData = new FormData();
@@ -16,8 +16,37 @@ export default function ResumeForm() {
     formData.append("github_username", githubId);
 
     const res = await api.post("/upload/resume", formData);
+    if (res.data.data.success) {
+      console.log(
+        "unidirection connection is started stream start from frontend side",
+      );
+      const resumeId = res.data.data.resumeId;
 
-    console.log(res.data);
+      const eventSource = new EventSource(
+        `http://localhost:3001/api/v1/resume/stream-status/${resumeId}`,
+        { withCredentials: true },
+      );
+
+      eventSource.onopen = () => {
+        console.log("SSE CONNECTION OPENED");
+      };
+
+      eventSource.onmessage = (event) => {
+        console.log("SSE MESSAGE RECEIVED:", event.data);
+        const data = JSON.parse(event.data);
+
+        if (data.status === "finished") {
+          console.log("Resume completed:", data);
+          eventSource.close();
+        }
+        console.log("update  ", data);
+      };
+
+      eventSource.onerror = (error) => {
+        console.error("SSE ERROR:", error);
+        console.log("ReadyState:", eventSource.readyState);
+      };
+    }
     alert("Resume submitted successfully!");
   }
 
