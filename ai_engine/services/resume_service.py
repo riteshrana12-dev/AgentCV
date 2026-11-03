@@ -17,11 +17,9 @@ def _extract_raw_text(file_bytes: bytes, filename: str) -> tuple[str, str]:
         return extract_text_from_pdf(file_bytes), "pdf"
 
     if ext in (".docx", ".doc"):
-    
         blob = Blob.from_data(file_bytes, metadata={"source": filename})
         documents = list(_docx_parser.lazy_parse(blob))
         text = documents[0].page_content if documents else ""
-            # Normalize spacing for .docx files to avoid excessive blank lines
         if text and ext == ".docx":
             text = _normalize_docx_paragraph_spacing(text)
         return text, "docx" if ext == ".docx" else "doc"
