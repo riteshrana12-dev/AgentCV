@@ -21,8 +21,12 @@ export default function SignIn() {
       },
     );
 
-    console.log(res.data);
-
+    const token = res.data?.token;
+    if (token) {
+      sessionStorage.setItem("token", token);
+      console.log("Sign in token saved to sessionStorage");
+    }
+    console.log("Sign in response:", res.data);
     alert("signIn successfull");
   }
 
