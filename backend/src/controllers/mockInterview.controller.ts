@@ -103,10 +103,20 @@ export const mockInterview = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error("Error uploading resume:", error);
-    return res.status(500).json({
+
+    const apiErrorDetail =
+      error?.response?.data?.detail ||
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      error?.message ||
+      "Unknown error";
+
+    const statusCode = error?.response?.status || 500;
+
+    return res.status(statusCode).json({
       success: false,
       message: "Error uploading resume",
-      error: error.message,
+      error: apiErrorDetail,
     });
   }
 };
