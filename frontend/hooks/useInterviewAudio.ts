@@ -5,6 +5,9 @@ import { EventHandler } from "@/types/interview";
 import { AudioPlayerService } from "@/services/audioPlayer.service";
 import { AudioCaptureService } from "@/services/audioCapture.service";
 import { InterviewSocketService } from "@/services/interviewSocket.service";
+import { InterviewEvent } from "@/types/interview";
+
+const FRAME_TYPE_AUDIO_OUT = 0x02;
 
 export function useInterviewAudio(onEvent: EventHandler) {
   const playerRef = useRef(new AudioPlayerService());
@@ -16,14 +19,38 @@ export function useInterviewAudio(onEvent: EventHandler) {
     onEventRef.current = onEvent;
   }, [onEvent]);
 
-  const connect = useCallback(async (nodeWsUrl: string, sessionId: string) => {
-    await socketRef.current.connect(
-      nodeWsUrl,
-      sessionId,
-      () => {},
-      onEventRef.current,
-    );
+  const handleServerMessage = useCallback(async (event: MessageEvent) => {
+    if (typeof event.data === "string") {
+      try {
+        const parsed = JSON.parse(event.data) as InterviewEvent;
+        onEventRef.current(parsed);
+      } catch {
+        // Ignore malformed messages
+      }
+
+      return;
+    }
+
+    const buf = new Uint8Array(event.data);
+    const frameType = buf[0];
+    const payload = buf.slice(1);
+
+    if (frameType === FRAME_TYPE_AUDIO_OUT) {
+      await playerRef.current.playChunk(payload);
+    }
   }, []);
+
+  const connect = useCallback(
+    async (nodeWsUrl: string, sessionId: string) => {
+      await socketRef.current.connect(
+        nodeWsUrl,
+        sessionId,
+        handleServerMessage,
+        onEventRef.current,
+      );
+    },
+    [handleServerMessage],
+  );
 
   const disconnect = useCallback(() => {
     socketRef.current.disconnect();
@@ -32,6 +59,10 @@ export function useInterviewAudio(onEvent: EventHandler) {
   const startCapture = useCallback(async () => {
     await captureRef.current.start((pcmBytes) => {
       socketRef.current.sendAudio(pcmBytes);
+      onEventRef.current({
+        type: "audio_chunk_sent",
+        bytes: pcmBytes.byteLength,
+      });
     });
   }, []);
 
