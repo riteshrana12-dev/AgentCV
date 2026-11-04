@@ -1,19 +1,26 @@
 "use client";
 
 import { useRef, useCallback, useEffect } from "react";
-import { EventHandler } from "@/types/interview";
+
+import { EventHandler, InterviewEvent } from "@/types/interview";
+
 import { AudioPlayerService } from "@/services/audioPlayer.service";
+
 import { AudioCaptureService } from "@/services/audioCapture.service";
+
 import { InterviewSocketService } from "@/services/interviewSocket.service";
-import { InterviewEvent } from "@/types/interview";
 
 const FRAME_TYPE_AUDIO_OUT = 0x02;
 
 export function useInterviewAudio(onEvent: EventHandler) {
-  const playerRef = useRef(new AudioPlayerService());
-  const captureRef = useRef(new AudioCaptureService());
   const socketRef = useRef(new InterviewSocketService());
+
+  const playerRef = useRef(new AudioPlayerService());
+
+  const captureRef = useRef(new AudioCaptureService());
+
   const onEventRef = useRef(onEvent);
+  const listeningSeenRef = useRef(false);
 
   useEffect(() => {
     onEventRef.current = onEvent;
@@ -23,11 +30,19 @@ export function useInterviewAudio(onEvent: EventHandler) {
     if (typeof event.data === "string") {
       try {
         const parsed = JSON.parse(event.data) as InterviewEvent;
+
+        if (parsed.type === "state_change" && parsed.state === "listening") {
+          listeningSeenRef.current = true;
+        }
+
+        if (parsed.type === "state_change" && parsed.state === "ended") {
+          listeningSeenRef.current = false;
+        }
+
         onEventRef.current(parsed);
       } catch {
-        // Ignore malformed messages
+        // Ignore malformed non-JSON server messages.
       }
-
       return;
     }
 
@@ -52,10 +67,6 @@ export function useInterviewAudio(onEvent: EventHandler) {
     [handleServerMessage],
   );
 
-  const disconnect = useCallback(() => {
-    socketRef.current.disconnect();
-  }, []);
-
   const startCapture = useCallback(async () => {
     await captureRef.current.start((pcmBytes) => {
       socketRef.current.sendAudio(pcmBytes);
@@ -68,7 +79,22 @@ export function useInterviewAudio(onEvent: EventHandler) {
 
   const stopCapture = useCallback(async () => {
     await captureRef.current.stop();
+    await socketRef.current.stopAndWait();
   }, []);
+
+  const disconnect = useCallback(async () => {
+    await captureRef.current.stop();
+
+    await playerRef.current.destroy();
+
+    socketRef.current.disconnect();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      disconnect();
+    };
+  }, [disconnect]);
 
   return {
     connect,
