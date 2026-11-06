@@ -52,9 +52,10 @@ export const signup = async (req: Request, res: Response) => {
     );
 
     res.cookie("token", token, {
-      httpOnly: true, // prevents JS access
-      secure: false, // only over HTTPS
+      httpOnly: true,
+      secure: false,
       sameSite: "lax",
+      path: "/",
     });
 
     if (userCreated) {
@@ -120,9 +121,10 @@ export const signin = async (req: Request, res: Response) => {
     );
 
     res.cookie("token", token, {
-      httpOnly: true, // prevents JS access
-      secure: false, // only over HTTPS
+      httpOnly: true,
+      secure: false,
       sameSite: "lax",
+      path: "/",
     });
 
     return res.status(200).json({
