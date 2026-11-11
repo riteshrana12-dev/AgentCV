@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import Client from "../config/prismaClient";
-
+import { clearWebRTCSignals, getWebRTCSignals } from "../webrtc/signalStore";
 import { handleWebRTCSignal } from "../webrtc/peerManager";
 
 export const postWebRTCSignal = async (req: Request, res: Response) => {
@@ -72,4 +72,35 @@ export const postWebRTCSignal = async (req: Request, res: Response) => {
           : "Invalid WebRTC signal payload.",
     });
   }
+};
+
+export const getWebRTCSignal = async (req: Request, res: Response) => {
+  const sessionId = req.query.sessionId;
+  const peerId = req.query.peerId;
+
+  if (!sessionId) {
+    return res.status(400).json({ message: "sessionId is required." });
+  }
+
+  const interviewSession = await Client.interviewSession.findFirst({
+    where: {
+      id: String(sessionId),
+      userId: req.userId!,
+    },
+  });
+
+  if (!interviewSession) {
+    return res.status(404).json({ message: "Interview session not found." });
+  }
+
+  const signals = getWebRTCSignals(
+    String(sessionId),
+    peerId ? String(peerId) : undefined,
+  );
+
+  if (peerId) {
+    clearWebRTCSignals(String(sessionId), String(peerId));
+  }
+
+  return res.json({ signals });
 };
