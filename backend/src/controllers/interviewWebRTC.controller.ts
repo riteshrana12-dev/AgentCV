@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import Client from "../config/prismaClient";
 import { clearWebRTCSignals, getWebRTCSignals } from "../webrtc/signalStore";
-import { handleWebRTCSignal } from "../webrtc/peerManager";
+import { destroyBranch, handleWebRTCSignal } from "../webrtc/peerManager";
 
 export const postWebRTCSignal = async (req: Request, res: Response) => {
   const { sessionId, peerId, type, payload } = req.body ?? {};
@@ -103,4 +103,24 @@ export const getWebRTCSignal = async (req: Request, res: Response) => {
   }
 
   return res.json({ signals });
+};
+
+export const closeWebRTCPeer = async (req: Request, res: Response) => {
+  const { sessionId, peerId } = req.body ?? {};
+  if (!sessionId || !peerId) {
+    return res
+      .status(400)
+      .json({ message: "sessionId and peerId are required." });
+  }
+
+  const interviewSession = await Client.interviewSession.findFirst({
+    where: { id: String(sessionId), userId: req.userId! },
+    select: { id: true },
+  });
+  if (!interviewSession) {
+    return res.status(404).json({ message: "Interview session not found." });
+  }
+
+  destroyBranch(String(sessionId), String(peerId));
+  return res.json({ ok: true });
 };
