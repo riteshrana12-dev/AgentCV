@@ -34,6 +34,12 @@ export type InterviewEvent =
     }
   | {
       type: "ended";
+      reason?: string;
+    }
+  | {
+      type: "timer";
+      remaining_seconds: number;
+      duration_seconds: number;
     };
 
 export type EventHandler = (event: InterviewEvent) => void;
