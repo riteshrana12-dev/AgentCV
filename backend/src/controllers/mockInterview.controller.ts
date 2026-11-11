@@ -10,7 +10,7 @@ const interviewSessionSchema = z.object({
   difficulty: z.enum(["junior", "mid", "senior"]),
   interviewType: z.enum(["technical", "behavioral", "mixed"]),
   focusAreas: z.string().max(500).default(""),
-  duration: z.coerce.number().min(10).max(60),
+  duration: z.coerce.number().min(10).max(30),
   jd: z.string().min(200).max(5000),
 });
 
