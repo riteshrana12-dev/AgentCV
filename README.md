@@ -67,3 +67,8 @@ Beyond static document generation, the system features an **Interview Agent** de
 ## 📄 License
 
 Internal Proprietary — All rights reserved.
+
+source venv/bin/activate
+uvicorn ai_engine.main:app --reload --host 0.0.0.0 --port 8000
+
+rq worker resume_tailoring
